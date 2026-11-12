@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "nolang-mcp"
-version = "0.0.2"
+version = "0.0.3"
 description = "NoLang MCP Server for AI Video Generation"
 readme = "README.md"
 requires-python = ">=3.12"

@@ -1,8 +1,22 @@
-# NoLang MCP Server
+# NoLang MCP Server (legacy)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+> **Using Claude Code or Codex?** Install the NoLang plugin instead — no API key and no Python needed:
+>
+> ```
+> claude plugin marketplace add team-tissis/nolang-mcp
+> claude plugin install nolang@nolang
+> ```
+>
+> Codex: `codex plugin marketplace add team-tissis/nolang-mcp`, then `codex plugin add nolang@nolang`.
+>
+> **Using claude.ai, ChatGPT or another client without a shell?** Add the hosted MCP connector
+> `https://api.no-lang.com/agent/mcp` and sign in with your NoLang account (no API key).
+>
+> Plugin source and docs: https://github.com/team-tissis/nolang-mcp
 
-> Enable any MCP Client like Claude Desktop or Agents to use the NoLang API to generate AI-powered videos
+This PyPI package is the older, API-key based MCP server for the NoLang API. It still works, but new setups
+should use the plugin or the hosted connector above. Its source lives at
+https://github.com/team-tissis/nolang-mcp-legacy.
 
 ## What is NoLang?
 
@@ -64,7 +78,7 @@ Add the following to your Claude Desktop configuration file:
   "mcpServers": {
     "nolang": {
       "command": "uvx",
-      "args": ["nolang-mcp-stdio"],
+      "args": ["nolang-mcp"],
       "env": {
         "NOLANG_API_KEY": "your_api_key_here"
       }
