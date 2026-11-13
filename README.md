@@ -1,196 +1,31 @@
-# NoLang MCP Server (legacy)
+# NoLang
 
-> **Using Claude Code or Codex?** Install the NoLang plugin instead — no API key and no Python needed:
->
-> ```
-> claude plugin marketplace add team-tissis/nolang-mcp
-> claude plugin install nolang@nolang
-> ```
->
-> Codex: `codex plugin marketplace add team-tissis/nolang-mcp`, then `codex plugin add nolang@nolang`.
->
-> **Using claude.ai, ChatGPT or another client without a shell?** Add the hosted MCP connector
-> `https://api.no-lang.com/agent/mcp` and sign in with your NoLang account (no API key).
->
-> Plugin source and docs: https://github.com/team-tissis/nolang-mcp
+[NoLang](https://no-lang.com) is an AI video generation service by Mavericks, inc.: describe a video in plain words
+and it makes one with a script, narration, pictures and BGM.
 
-This PyPI package is the older, API-key based MCP server for the NoLang API. It still works, but new setups
-should use the plugin or the hosted connector above. Its source lives at
-https://github.com/team-tissis/nolang-mcp-legacy.
+## Use NoLang from an AI agent
 
-## What is NoLang?
+**Claude Code** — install the official plugin (no API key, no Python):
 
-NoLang is an AI-powered video generation service developed by Mavericks that creates videos in real-time. This MCP server provides a standardized interface to interact with the NoLang API.
-
-- [NoLang Website](https://no-lang.com/)
-
-## Prerequisites
-
-- Python 3.12+
-- NoLang API key (Get it from the NoLang dashboard: NoLang API > API Key)
-
-## Installation
-
-We recommend using `uv` to manage Python environments and dependencies.
-
-### Install uv
-
-#### macOS/Linux
-```bash
-# Using the official installer
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Or using Homebrew
-brew install uv
+```
+claude plugin install nolang --marketplace mvrks-inc/nolang-plugin
 ```
 
-#### Windows
-```powershell
-# Using PowerShell
-irm https://astral.sh/uv/install.ps1 | iex
+**Codex**:
+
+```
+codex plugin marketplace add mvrks-inc/nolang-plugin
+codex plugin add nolang@nolang
 ```
 
-## Configuration
+Restart Claude Code / Codex, then ask "Make a 60-second video about …". The first time, you sign in to your NoLang
+account in the browser.
 
-1. Set your NoLang API key to the environment variable:
-```bash
-export NOLANG_API_KEY=your_api_key_here
-```
+**claude.ai, ChatGPT and other clients without a shell** — add the MCP connector `https://api.no-lang.com/agent/mcp`
+and sign in with your NoLang account.
 
-## Usage
+Details: https://github.com/mvrks-inc/nolang-plugin
 
-### STDIO Mode (Claude Desktop etc.)
+---
 
-STDIO mode is designed for local clients such as Claude Desktop.
-
-#### Claude Desktop Configuration
-
-Add the following to your Claude Desktop configuration file:
-
-#### macOS
-`~/Library/Application Support/Claude/claude_desktop_config.json`
-
-#### Windows
-`%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "nolang": {
-      "command": "uvx",
-      "args": ["nolang-mcp"],
-      "env": {
-        "NOLANG_API_KEY": "your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-#### Direct Execution
-```bash
-# Start in STDIO mode
-nolang-mcp-stdio
-
-# or
-python -m nolang_mcp.runner.run_stdio
-```
-
-### HTTP Mode (Remote Access & Multiple Clients)
-
-HTTP mode supports remote access via web and concurrent connections from multiple clients.
-
-```bash
-# Start in HTTP mode (default port: 7310)
-nolang-mcp-http
-
-# or
-python -m nolang_mcp.runner.run_http
-
-# Start with custom port
-NOLANG_MCP_PORT=8080 nolang-mcp-http
-```
-
-### HTTP mode: expose as remote MCP server (Cloudflare Tunnel / no DNS or auth)
-
-Expose your local MCP HTTP server instantly using Cloudflare Tunnel Quick Tunnel. This generates a temporary `trycloudflare.com` URL with no DNS or authentication setup required.
-
-```bash
-# 1) Install Cloudflare Tunnel CLI (macOS)
-brew install cloudflared
-
-# 2) Start the MCP server in another terminal (requires API key)
-export NOLANG_API_KEY=your_api_key_here
-# Optional: change port (default: 7310)
-# export NOLANG_MCP_PORT=7310
-nolang-mcp-http
-# or
-# python -m nolang_mcp.runner.run_http
-
-# 3) Start a Quick Tunnel in a new terminal
-cloudflared tunnel --url http://localhost:${NOLANG_MCP_PORT:-7310}
-# You will get a URL like: https://xxxxx.trycloudflare.com
-```
-
-- The issued URL is random and temporary. For longer-term or access-controlled setups, consider a Named Tunnel or Cloudflare Access.
-
-
-## Available MCP Tools
-
-### generate_video_with_setting
-Consumes paid credits. Start video generation using your VideoSetting ID.
-
-**Required Parameters:**
-- `video_setting_id` (string): UUID of VideoSetting (obtainable via `list_video_settings`)
-
-**Optional Parameters (at least one is required):**
-- `text` (string): Text prompt (for QUERY modes or slideshow_analysis mode)
-- `pdf_path` (string): Absolute path to PDF file (for slideshow_* modes)
-- `pptx_path` (string): Absolute path to PPTX file (for slideshow_* modes)
-- `audio_path` (string): Absolute path to audio file (for audio_speech mode, MP3/WAV/M4A/AAC)
-- `video_path` (string): Absolute path to video file (for audio_video mode, MP4)
-- `image_paths` (string): Image file paths (comma-separated, for QUERY modes)
-
-### generate_video_with_template
-Consumes paid credits. Start video generation using an official template Video ID.
-
-**Required Parameters:**
-- `video_id` (string): ID of generated or generating video
-
-**Optional Parameters:**
-- Same parameters as `generate_video_with_setting` are available
-
-### wait_video_generation_and_get_download_url
-Polls until video generation completes and returns the download URL.
-
-**Parameters:**
-- `video_id` (string, required): Video ID of the generation job
-- `max_wait_time` (integer, optional): Maximum wait time in seconds (default: 600)
-- `check_interval` (integer, optional): Status check interval in seconds (default: 10)
-
-### list_generated_videos
-Return a paginated list of videos you have generated.
-
-**Parameters:**
-- `page` (integer, optional): Page number (default: 1)
-
-### list_video_settings
-Return a paginated list of your VideoSettings.
-
-**Parameters:**
-- `page` (integer, optional): Page number (default: 1)
-
-### recommend_templates
-Recommend official templates based on video mode and optional query.
-
-
-## Project Structure
-
-- `nolang_mcp/server.py`: Common MCP server definition and API client
-- `nolang_mcp/runner/run_stdio.py`: Entry point for STDIO
-- `nolang_mcp/runner/run_http.py`: Entry point for HTTP
-
-
-## License
-
-MIT License
+This package (`nolang-mcp`) is superseded by the plugin above. New setups should use the plugin or the connector.
