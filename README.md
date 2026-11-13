@@ -28,4 +28,6 @@ Details: https://github.com/mvrks-inc/nolang-plugin
 
 ---
 
-This package (`nolang-mcp`) is superseded by the plugin above. New setups should use the plugin or the connector.
+This package (`nolang-mcp`) is superseded by the plugin above. Its commands (`nolang-mcp`, `nolang-mcp-stdio`) are now an
+MCP server with no video tools: it only tells the client how to connect NoLang with the plugin or the connector. It makes
+no network request and reads no API key.
